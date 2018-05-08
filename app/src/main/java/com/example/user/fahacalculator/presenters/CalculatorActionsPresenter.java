@@ -1,37 +1,43 @@
 package com.example.user.fahacalculator.presenters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.user.fahacalculator.R;
 import com.example.user.fahacalculator.common.CalculatorParameters;
 import com.example.user.fahacalculator.common.PresenterBase;
-import com.jakewharton.rxbinding2.view.RxView;
 
-import io.reactivex.Observable;
-import io.reactivex.functions.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CalculatorActionsPresenter extends PresenterBase implements CalculatorPresenter {
     private static View fragmentView;
+    private static TextView mainScreenTextView;
+    private static TextView resultTextView;
     private LinearLayout mainContainer;
     private WindowManager windowManager;
     private Context context;
     private Boolean landscape;
+    private int btnWidth;
+    private int btnHeight;
+    private double firstValue = 0;
+    private double secondValue = 0;
 
     @Override
     public void attachView(View mvpView) {
         super.attachView(mvpView);
         fragmentView = (View) mvpView;
+        mainScreenTextView = fragmentView.findViewById(R.id.mainScreen);
+        resultTextView = fragmentView.findViewById(R.id.resultTextView);
     }
 
     @Override
@@ -71,8 +77,6 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
         String[][] Buttons = {};
 
         LinearLayout.LayoutParams linearParams;
-        int btnWidth;
-        int btnHeight;
         if (landscape) {
             Buttons = CalculatorParameters.getLandscapeButtons();
             linearParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -96,11 +100,14 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
             for (int y = 0; y < secondLevel; y++) {
                 Button btn = new Button(context);
                 btn.setBackground(fragmentView.getResources().getDrawable(R.drawable.button_selector));
-                btn.setText(Buttons[x][y]);
-                btn.setTag(1);
-                btn.setTextSize(19);
-                Observable btnClick = (Observable) RxView.clicks(btn).subscribe(aVoid -> {
-                    onButtonClicked();
+                String curItem = Buttons[x][y];
+                btn.setText(curItem);
+                btn.setTag(curItem);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onButtonClicked(view);
+                    }
                 });
 
                 linearLayout.addView(btn, buttonParams);
@@ -109,15 +116,36 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
         }
     }
 
-    private void onButtonClicked(Button button) {
-        int btmTag = (int) button.getTag();
+    private void onButtonClicked(View button) {
+        String btnTag = (String) button.getTag();
+        appendScreensText(btnTag);
+    }
 
-        switch (btmTag) {
-            case 1:
-                Log.d("BTN", "onButtonClicked: " + 1);
+    private void appendScreensText(String btnTag) {
+        String mainScreenText = (String) mainScreenTextView.getText();
+        String resultValue = (String) resultTextView.getText();
+
+        switch (btnTag) {
+            case CalculatorParameters.DEL_BUTTON:
+                if (mainScreenText.length() > 0) {
+                    mainScreenTextView.setText(mainScreenText.substring(0, mainScreenText.length() - 1));
+                }
+                if(resultValue != "0"){
+                    resultTextView.setText(String.valueOf(firstValue));
+                }
                 break;
+            case CalculatorParameters.MULTIPL_BUTTON:
+                mainScreenTextView.setText(mainScreenText + btnTag);
+                resultTextView.setText(String.valueOf(firstValue * secondValue));
+                break;
+            case CalculatorParameters.DIVISION_BUTTON:
+                mainScreenTextView.setText(mainScreenText + btnTag);
+                resultTextView.setText(String.valueOf(firstValue / secondValue));
+            case CalculatorParameters.MINUS_BUTTON:
+                mainScreenTextView.setText(mainScreenText + btnTag);
+                resultTextView.setText(String.valueOf(firstValue - secondValue));
             default:
-                Log.d("BTN", "Default");
+                mainScreenTextView.setText(mainScreenText + btnTag);
                 break;
         }
     }
@@ -128,11 +156,22 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
     }
 
     private Point getDisplayParams() {
-        @SuppressLint("ServiceCast")
         DisplayManager displayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
         Display display = displayManager.getDisplay(0);
         Point size = new Point();
         display.getSize(size);
         return size;
+    }
+
+    private boolean containNumberNotZero(String theRegex, String stringToCheck) {
+
+        Pattern pattern = Pattern.compile(theRegex);
+        Matcher matcher = pattern.matcher(stringToCheck);
+
+        while (matcher.find()) {
+            return true;
+        }
+
+        return false;
     }
 }

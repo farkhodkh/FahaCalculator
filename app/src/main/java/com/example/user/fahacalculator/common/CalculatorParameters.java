@@ -1,19 +1,30 @@
 package com.example.user.fahacalculator.common;
 
 public class CalculatorParameters {
+    public static final String PLUS_BUTTON = "+";
+    public static final String MINUS_BUTTON = "-";
+    public static final String MULTIPL_BUTTON = "*";
+    public static final String DIVISION_BUTTON = "÷";
+    public static final String DEL_BUTTON = "DEL";
+    public static final String DOT_BUTTON = ".";
+    public static final String EQUAL_BUTTON = "=";
+    public static final String ROOT_BUTTON = "√";
+    public static final String SQUARE_BUTTON = "^";
+    public static final String DOUBLE_ZERO_BUTTON = "00";
+
     private static String[][] buttons = {
-            {"Del", "√", "^", "00"},
-            {"7", "8", "9", "*"},
-            {"4", "5", "6", "÷"},
-            {"1", "2", "3", "-"},
-            {".", "0", "=", "+"}
+            {DEL_BUTTON, ROOT_BUTTON, SQUARE_BUTTON, DOUBLE_ZERO_BUTTON},
+            {"7", "8", "9", MULTIPL_BUTTON},
+            {"4", "5", "6", DIVISION_BUTTON},
+            {"1", "2", "3", MINUS_BUTTON},
+            {DOT_BUTTON, "0", EQUAL_BUTTON, PLUS_BUTTON}
     };
 
     private static String[][] landscapeButtons = {
-            {"Del", "√", "^", "00", "."},
-            {"7", "8", "9", "*", "÷"},
-            {"3", "4", "5", "6", "-"},
-            {"0", "1", "2", "=", "+"}
+            {DEL_BUTTON, ROOT_BUTTON, SQUARE_BUTTON, DOUBLE_ZERO_BUTTON, DOT_BUTTON},
+            {"7", "8", "9", MULTIPL_BUTTON, DIVISION_BUTTON},
+            {"3", "4", "5", "6", MINUS_BUTTON},
+            {"0", "1", "2", EQUAL_BUTTON, PLUS_BUTTON}
     };
 
     public static String[][] getLandscapeButtons() {

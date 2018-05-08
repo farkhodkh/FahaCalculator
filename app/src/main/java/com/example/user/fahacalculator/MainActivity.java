@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.example.user.fahacalculator.presenters.MainPresenter;
 import com.example.user.fahacalculator.views.PhoneView;
-import com.example.user.fahacalculator.views.TabView;
 
 public class MainActivity extends AppCompatActivity implements MainPresenter {
 
@@ -15,13 +14,10 @@ public class MainActivity extends AppCompatActivity implements MainPresenter {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (!isTablet()) {
-            changeFragment(new PhoneView());
-        } else {
-            changeFragment(new TabView());
-        }
+        changeFragment(new PhoneView());
     }
 
+    //
     @Override
     public boolean isTablet() {
         return false;
