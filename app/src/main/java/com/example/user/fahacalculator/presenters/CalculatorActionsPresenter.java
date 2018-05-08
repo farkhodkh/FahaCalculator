@@ -31,6 +31,7 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
     private int btnHeight;
     private double firstValue = 0;
     private double secondValue = 0;
+    private static boolean fractionalPart;
 
     @Override
     public void attachView(View mvpView) {
@@ -118,20 +119,39 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
     private void onButtonClicked(View button) {
         String btnTag = (String) button.getTag();
+        updateValues(btnTag);
         appendScreensText(btnTag);
+    }
+
+    private void updateValues(String btnTag) {
+        String resultValue = (String) resultTextView.getText();
+        if (btnTag == CalculatorParameters.DOT_BUTTON) {
+            fractionalPart = true;
+        }
+
+        String stringValue = String.valueOf(firstValue);
+
+        if (containsNumber("[0-9]", btnTag)) {
+            if(fractionalPart){
+                int indexOfFraction = stringValue.indexOf(CalculatorParameters.DOT_BUTTON);
+                String tempData = stringValue.substring(0, indexOfFraction) +CalculatorParameters.DOT_BUTTON + String.valueOf(Integer.parseInt(stringValue.substring(indexOfFraction+1)) + btnTag);
+                firstValue = Double.parseDouble(tempData);
+            }else{
+                int indexOfFraction = stringValue.indexOf(CalculatorParameters.DOT_BUTTON);
+                String tempData = stringValue.substring(0, indexOfFraction) + btnTag + stringValue.substring(indexOfFraction);
+                firstValue = Double.parseDouble(tempData);
+                secondValue = 1;
+            }
+        }
     }
 
     private void appendScreensText(String btnTag) {
         String mainScreenText = (String) mainScreenTextView.getText();
-        String resultValue = (String) resultTextView.getText();
 
         switch (btnTag) {
             case CalculatorParameters.DEL_BUTTON:
                 if (mainScreenText.length() > 0) {
                     mainScreenTextView.setText(mainScreenText.substring(0, mainScreenText.length() - 1));
-                }
-                if(resultValue != "0"){
-                    resultTextView.setText(String.valueOf(firstValue));
                 }
                 break;
             case CalculatorParameters.MULTIPL_BUTTON:
@@ -163,9 +183,9 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
         return size;
     }
 
-    private boolean containNumberNotZero(String theRegex, String stringToCheck) {
+    private boolean containsNumber(String numbers, String stringToCheck) {
 
-        Pattern pattern = Pattern.compile(theRegex);
+        Pattern pattern = Pattern.compile(numbers);
         Matcher matcher = pattern.matcher(stringToCheck);
 
         while (matcher.find()) {
