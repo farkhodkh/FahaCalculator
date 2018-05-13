@@ -17,8 +17,11 @@ import com.example.user.fahacalculator.calculation.Calculator;
 import com.example.user.fahacalculator.common.CalculatorParameters;
 import com.example.user.fahacalculator.common.PresenterBase;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 public class CalculatorActionsPresenter extends PresenterBase implements CalculatorPresenter {
     private static View fragmentView;
@@ -30,10 +33,9 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
     private Boolean landscape;
     private int btnWidth;
     private int btnHeight;
-    private double firstValue = 0;
-    private double secondValue = 0;
-    private static boolean fractionalPart;
+
     private Calculator calculator = Calculator.getInstance();
+    private List<String> rpnList;
 
     @Override
     public void attachView(View mvpView) {
@@ -69,6 +71,7 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
         context = fragmentView.getContext();
         mainContainer = fragmentView.findViewById(R.id.main_container);
+        rpnList = calculator.getRpnArrayList();
 
         Point display = getDisplayParams();
 
@@ -121,33 +124,41 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
     private void onButtonClicked(View button) {
         String btnTag = (String) button.getTag();
-        calculator.inputData(btnTag);
-        appendScreensText(btnTag);
+        Observable<String> input = Observable.just(btnTag);
+        input.subscribe(new Observer<String>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(String btnTag) {
+                if(btnTag!=CalculatorParameters.EQUAL_BUTTON) {
+                    calculator.inputData(btnTag);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                if(btnTag!=CalculatorParameters.EQUAL_BUTTON) {
+                    appendScreensText(btnTag);
+                }
+                setResultText();
+            }
+        });
+    }
+
+    private void setResultText() {
+        resultTextView.setText(String.valueOf(calculator.compute()));
     }
 
     private void appendScreensText(String btnTag) {
-//        String mainScreenText = (String) mainScreenTextView.getText();
-//
-//        switch (btnTag) {
-//            case CalculatorParameters.DEL_BUTTON:
-//                if (mainScreenText.length() > 0) {
-//                    mainScreenTextView.setText(mainScreenText.substring(0, mainScreenText.length() - 1));
-//                }
-//                break;
-//            case CalculatorParameters.MULTIPL_BUTTON:
-//                mainScreenTextView.setText(mainScreenText + btnTag);
-//                resultTextView.setText(String.valueOf(firstValue * secondValue));
-//                break;
-//            case CalculatorParameters.DIVISION_BUTTON:
-//                mainScreenTextView.setText(mainScreenText + btnTag);
-//                resultTextView.setText(String.valueOf(firstValue / secondValue));
-//            case CalculatorParameters.MINUS_BUTTON:
-//                mainScreenTextView.setText(mainScreenText + btnTag);
-//                resultTextView.setText(String.valueOf(firstValue - secondValue));
-//            default:
-//                mainScreenTextView.setText(mainScreenText + btnTag);
-//                break;
-//        }
+        mainScreenTextView.setText(calculator.getScreenText());
     }
 
     @Override
@@ -161,17 +172,5 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
         Point size = new Point();
         display.getSize(size);
         return size;
-    }
-
-    private boolean containsNumber(String numbers, String stringToCheck) {
-
-        Pattern pattern = Pattern.compile(numbers);
-        Matcher matcher = pattern.matcher(stringToCheck);
-
-        while (matcher.find()) {
-            return true;
-        }
-
-        return false;
     }
 }
