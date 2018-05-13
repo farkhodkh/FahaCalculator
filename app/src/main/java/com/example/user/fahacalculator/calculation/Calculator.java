@@ -107,6 +107,10 @@ public class Calculator {
         }
 
         if(btnTag== CalculatorParameters.DEL_BUTTON){
+            if(inputList.size()>0) {
+                inputList.remove(inputList.size() - 1);
+            }
+            //TODO Удаление элементов из трех массивов синхронизировать!
             if ((rpnArrayList.size()==0&&lastStack==1)||(stackArray.size()==0&&lastStack==2)){
                 return;
             }
@@ -119,7 +123,6 @@ public class Calculator {
                 lastStack = 1;
             }
 
-            inputList.remove(inputList.size()-1);
             return;
         }
 
