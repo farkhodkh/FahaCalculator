@@ -135,6 +135,8 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
             public void onNext(String btnTag) {
                 if(btnTag!=CalculatorParameters.EQUAL_BUTTON) {
                     calculator.inputData(btnTag);
+                }else{
+                    onComplete();
                 }
             }
 

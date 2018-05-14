@@ -64,7 +64,7 @@ public class Calculator {
     }
 
     private boolean thisIsOperator(String item) {
-        String operators = "/*-+()";
+        String operators = "÷*-+()";
 
         return operators.contains(item);
     }
@@ -90,7 +90,7 @@ public class Calculator {
             case "*":
                 result = leftItem * rightItem;
                 break;
-            case "/":
+            case "÷":
                 result = leftItem / rightItem;
                 break;
             default:
