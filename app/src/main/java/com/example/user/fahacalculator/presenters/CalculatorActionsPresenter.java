@@ -1,6 +1,7 @@
 package com.example.user.fahacalculator.presenters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
@@ -16,6 +17,8 @@ import com.example.user.fahacalculator.R;
 import com.example.user.fahacalculator.calculation.Calculator;
 import com.example.user.fahacalculator.common.CalculatorParameters;
 import com.example.user.fahacalculator.common.PresenterBase;
+
+import org.json.JSONArray;
 
 import java.util.List;
 
@@ -71,7 +74,6 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
         context = fragmentView.getContext();
         mainContainer = fragmentView.findViewById(R.id.main_container);
-        rpnList = calculator.getRpnArrayList();
 
         Point display = getDisplayParams();
 
@@ -116,10 +118,24 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
                     }
                 });
 
+                btn.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        onButtonLongClicked(view);
+                        return false;
+                    }
+                });
+
                 linearLayout.addView(btn, buttonParams);
             }
             mainContainer.addView(linearLayout, linearParams);
         }
+    }
+
+    public void onButtonLongClicked(View view) {
+        calculator.clearAll();
+        calculator.updateData();
+        setResultText();
     }
 
     private void onButtonClicked(View button) {
@@ -133,9 +149,11 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
             @Override
             public void onNext(String btnTag) {
-                if(btnTag!=CalculatorParameters.EQUAL_BUTTON) {
-                    calculator.inputData(btnTag);
-                }else{
+                if (btnTag != CalculatorParameters.EQUAL_BUTTON) {
+                    calculator.input(btnTag);
+                    calculator.updateData();
+                    //calculator.inputData(btnTag);
+                } else {
                     onComplete();
                 }
             }
@@ -147,7 +165,7 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
             @Override
             public void onComplete() {
-                if(btnTag!=CalculatorParameters.EQUAL_BUTTON) {
+                if (btnTag != CalculatorParameters.EQUAL_BUTTON) {
                     appendScreensText(btnTag);
                 }
                 setResultText();
@@ -174,5 +192,35 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
         Point size = new Point();
         display.getSize(size);
         return size;
+    }
+
+    public void onResume(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
+        String value = "";
+        List inputList = calculator.getInputList();
+        for (int i = 0; i < 3; i++) {
+            if (mSettings.contains(APP_PREFERENCES_COUNTER + i)) {
+                value = mSettings.getString(APP_PREFERENCES_COUNTER + i, "");
+                inputList.add(value);
+                appendScreensText(value);
+            }
+        }
+        calculator.updateData();
+        setResultText();
+    }
+
+    public String getJsonObject() {
+        JSONArray jsArray = new JSONArray(getInputList());
+        return jsArray.toString();
+    }
+
+    private List<String> getInputList() {
+        return calculator.getInputList();
+    }
+
+    public void onPause(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
+        List inputList = calculator.getInputList();
+        for (int i = 00; i < Math.min(inputList.size(), 3); i++) {
+            mSettings.edit().putString(APP_PREFERENCES_COUNTER + i, (String) inputList.get(i).toString()).apply();
+        }
     }
 }

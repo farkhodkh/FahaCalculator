@@ -1,7 +1,5 @@
 package com.example.user.fahacalculator.calculation;
 
-import android.util.Log;
-
 import com.example.user.fahacalculator.common.CalculatorParameters;
 
 import java.util.ArrayList;
@@ -10,23 +8,17 @@ import java.util.List;
 
 public class Calculator {
     //reverse Polish notation
-    private static ArrayList<String> rpnArrayList;
+    private ArrayList<String> rpnArrayList;
     //stack
-    private static ArrayList<String> stackArray;
+    private ArrayList<String> stackArray;
 
     private static ArrayList<String> inputList;
 
     private int lastStack;
 
-    public static ArrayList<String> getRpnArrayList() {
-        return rpnArrayList;
-    }
-
     public static Calculator instance;
 
     public Calculator() {
-        rpnArrayList = new ArrayList();
-        stackArray = new ArrayList();
         inputList = new ArrayList();
     }
 
@@ -36,6 +28,12 @@ public class Calculator {
         }
 
         return instance;
+    }
+
+    public void setInputList(List<String> inputList) {
+        for (int i = 0; i < inputList.size(); i++) {
+            Calculator.inputList.add(inputList.get(i));
+        }
     }
 
     private int operatorPriority(String operator) {
@@ -64,14 +62,14 @@ public class Calculator {
     }
 
     private boolean thisIsOperator(String item) {
-        String operators = "÷*-+()";
+        String operators = "^÷*-+()√";
 
         return operators.contains(item);
     }
 
     private boolean thisIsNumber(String item) {
         try {
-            Integer.parseInt(item);
+            Double.parseDouble(item);
         } catch (Exception e) {
             return false;
         }
@@ -93,6 +91,12 @@ public class Calculator {
             case "÷":
                 result = leftItem / rightItem;
                 break;
+            case "√":
+                result = Math.sqrt(leftItem);
+                break;
+            case "^":
+                result = Math.pow(leftItem, rightItem);
+                break;
             default:
                 result = 0d;
                 break;
@@ -101,72 +105,117 @@ public class Calculator {
         return result;
     }
 
-    public void inputData(String btnTag) {
-        if (btnTag == null || btnTag.equals("")) {
-            return;
-        }
+    public static ArrayList<String> getInputList() {
+        return inputList;
+    }
 
-        if(btnTag== CalculatorParameters.DEL_BUTTON){
-            if(inputList.size()>0) {
-                inputList.remove(inputList.size() - 1);
-            }
-            //TODO Удаление элементов из трех массивов синхронизировать!
-            if ((rpnArrayList.size()==0&&lastStack==1)||(stackArray.size()==0&&lastStack==2)){
-                return;
-            }
+    public void updateData() {
+        rpnArrayList = new ArrayList();
+        stackArray = new ArrayList();
 
-            if(lastStack==1||stackArray.size()==0){
-                rpnArrayList.remove(rpnArrayList.size()-1);
-                lastStack = 2;
-            }else if(lastStack==2){
-                stackArray.remove(stackArray.size()-1);
-                lastStack = 1;
+        for (int i = 0; i < inputList.size(); i++) {
+            String item = inputList.get(i);
+            String prevItem;
+            if (i < 1) {
+                prevItem = null;
+            } else {
+                prevItem = inputList.get(i - 1);
             }
 
-            return;
-        }
-
-        if (thisIsNumber(btnTag)) {
-            if(lastStack == 1){
-                String uppItem = rpnArrayList.get(rpnArrayList.size()-1) + btnTag;
-
-                rpnArrayList.add(rpnArrayList.size()-1, uppItem);
-                rpnArrayList.remove(rpnArrayList.size()-1);
-
-                inputList.add(inputList.size()-1, uppItem);
-                inputList.remove(inputList.size()-1);
-            }else {
-                rpnArrayList.add(btnTag);
-                inputList.add(btnTag);
-            }
-            lastStack = 1;
-        } else {
-
-            if (stackArray.size() == 0 || btnTag.equals("(")) {
-                stackArray.add(btnTag);
-                inputList.add(btnTag);
-                lastStack = 2;
-                return;
-            }
-
-            int stackSize = stackArray.size() - 1;
-            String lastItem = stackArray.get(stackSize);
-
-            if (btnTag.equals(")")) {
+            if (thisIsNumber(item)) {
+                rpnArrayList.add(item);
+            } else if (stackArray.size() == 0 || item.equals("(")) {
+                stackArray.add(item);
+            } else if (item.equals(")")) {
+                int stackSize = stackArray.size() - 1;
+                String lastItem = stackArray.get(stackSize);
                 boolean check = true;
-                lastItem = stackArray.get(stackSize);
                 do {
                     if (lastItem.equals("(")) {
                         stackArray.remove(stackSize);
                         check = false;
                     }
-
                     rpnArrayList.add(lastItem);
                     stackArray.remove(stackSize);
                     stackSize--;
-                    lastStack = 1;
                 }
                 while (check);
+            } else if (operatorPriority(prevItem) >= operatorPriority(item)) {
+                rpnArrayList.add(prevItem);
+                stackArray.remove(stackArray.size() - 1);
+                stackArray.add(item);
+            } else {
+                stackArray.add(item);
+            }
+        }
+    }
+
+    public void inputData(String btnTag) {
+//        if (btnTag == null || btnTag.equals("")) {
+//            return;
+//        }
+//
+//        if (btnTag == CalculatorParameters.DEL_BUTTON) {
+//            if (inputList.size() > 0) {
+//                inputList.remove(inputList.size() - 1);
+//            }
+//            //TODO Удаление элементов из трех массивов синхронизировать!
+//            if ((rpnArrayList.size() == 0 && lastStack == 1) || (stackArray.size() == 0 && lastStack == 2)) {
+//                return;
+//            }
+//
+//            if (lastStack == 1 || stackArray.size() == 0) {
+//                rpnArrayList.remove(rpnArrayList.size() - 1);
+//                lastStack = 2;
+//            } else if (lastStack == 2) {
+//                stackArray.remove(stackArray.size() - 1);
+//                lastStack = 1;
+//            }
+//
+//            return;
+//        }
+
+        if (thisIsNumber(btnTag)) {
+//            if (lastStack == 1) {
+//                String uppItem = rpnArrayList.get(rpnArrayList.size() - 1) + btnTag;
+//
+//                rpnArrayList.add(rpnArrayList.size() - 1, uppItem);
+//                rpnArrayList.remove(rpnArrayList.size() - 1);
+//
+//                inputList.add(inputList.size() - 1, uppItem);
+//                inputList.remove(inputList.size() - 1);
+//            } else {
+//                rpnArrayList.add(btnTag);
+//                inputList.add(btnTag);
+//            }
+//            lastStack = 1;
+        } else {
+
+//            if (stackArray.size() == 0 || btnTag.equals("(")) {
+//                stackArray.add(btnTag);
+//                inputList.add(btnTag);
+//                lastStack = 2;
+//                return;
+//            }
+
+            int stackSize = stackArray.size() - 1;
+            String lastItem = stackArray.get(stackSize);
+
+            if (btnTag.equals(")")) {
+//                boolean check = true;
+//                lastItem = stackArray.get(stackSize);
+//                do {
+//                    if (lastItem.equals("(")) {
+//                        stackArray.remove(stackSize);
+//                        check = false;
+//                    }
+//
+//                    rpnArrayList.add(lastItem);
+//                    stackArray.remove(stackSize);
+//                    stackSize--;
+//                    lastStack = 1;
+//                }
+//                while (check);
             } else if (operatorPriority(lastItem) >= operatorPriority(btnTag)) {
                 rpnArrayList.add(lastItem);
                 stackArray.remove(stackSize);
@@ -181,7 +230,7 @@ public class Calculator {
         }
     }
 
-    private List<String> getTempArray(){
+    private List<String> getTempArray() {
         List<String> tempArray = new ArrayList<>();
 
         for (int i = 0; i < rpnArrayList.size(); i++) {
@@ -192,12 +241,12 @@ public class Calculator {
             return tempArray;
         }
 
-        int stackSize = stackArray.size()-1;
+        int stackSize = stackArray.size() - 1;
         boolean check = true;
         do {
             if (stackSize < 0) {
                 check = false;
-            }else {
+            } else {
                 tempArray.add(stackArray.get(stackSize));
             }
             stackSize--;
@@ -211,7 +260,7 @@ public class Calculator {
         List<String> tempArray = getTempArray();
         List<String> resultArray = new ArrayList<>();
 
-        if(tempArray.size()==0){
+        if (tempArray.size() == 0) {
             return 0d;
         }
 
@@ -221,33 +270,67 @@ public class Calculator {
             stackItem = tempArray.get(i);
             if (thisIsOperator(stackItem)) {
                 tempArraySize = tempArray.size();
-                if(tempArraySize<3){
+                if (stackItem.equals(CalculatorParameters.ROOT_BUTTON)) {
+                    String firstItem = tempArray.get(tempArraySize - 2);
+                    Double result = evaluateExpression(Double.parseDouble(firstItem), null, stackItem);
+                    resultArray.remove(tempArraySize - 2);
+                    resultArray.add(String.valueOf(result));
+                } else if (tempArraySize < 3) {
                     return 0d;
-                }
-                tempArraySize--;
-                String firstItem = tempArray.get(tempArraySize - 2);
-                String secondItem = tempArray.get(tempArraySize - 1);
+                } else {
+                    tempArraySize--;
+                    String firstItem = tempArray.get(tempArraySize - 2);
+                    String secondItem = tempArray.get(tempArraySize - 1);
 
-                if (firstItem == null || secondItem == null||!thisIsNumber(firstItem)||!thisIsNumber(secondItem)) {
-                    return 0d;
+                    if (firstItem == null || secondItem == null || !thisIsNumber(firstItem) || !thisIsNumber(secondItem)) {
+                        return 0d;
+                    }
+
+                    Double result = evaluateExpression(Double.parseDouble(firstItem), Double.parseDouble(secondItem), stackItem);
+                    resultArray.remove(tempArraySize - 1);
+                    resultArray.remove(tempArraySize - 2);
+                    resultArray.add(String.valueOf(result));
                 }
-                Double result = evaluateExpression(Double.parseDouble(firstItem), Double.parseDouble(secondItem), stackItem);
-                resultArray.remove(tempArraySize - 1);
-                resultArray.remove(tempArraySize - 2);
-                resultArray.add(String.valueOf(result));
             } else {
                 resultArray.add(String.valueOf(stackItem));
             }
         }
-
         return Double.parseDouble(resultArray.get(0));
     }
 
     public String getScreenText() {
         String resultText = "";
-        for(int i = 0; i<inputList.size();i++){
+        for (int i = 0; i < inputList.size(); i++) {
             resultText = resultText + inputList.get(i);
         }
         return resultText;
+    }
+
+    public void input(String btnTag) {
+        if (btnTag == null || btnTag.equals("")) {
+            return;
+        }
+        if (btnTag == CalculatorParameters.DEL_BUTTON) {
+            if (inputList.size() > 0) {
+                inputList.remove(inputList.size() - 1);
+            }
+        } else if (inputList.size() == 0) {
+            inputList.add(btnTag);
+        } else {
+            String lastItem = inputList.get(inputList.size() - 1);
+
+            if ((thisIsNumber(lastItem) && thisIsNumber(btnTag)) || btnTag.equals(CalculatorParameters.DOT_BUTTON) || lastItem.substring(lastItem.length() - 1).equals(CalculatorParameters.DOT_BUTTON)) {
+                inputList.add(inputList.size() - 1, lastItem + btnTag);
+                inputList.remove(inputList.size() - 1);
+            } else {
+                inputList.add(btnTag);
+            }
+        }
+    }
+
+    public void clearAll() {
+        inputList.clear();
+        rpnArrayList.clear();
+        stackArray.clear();
     }
 }

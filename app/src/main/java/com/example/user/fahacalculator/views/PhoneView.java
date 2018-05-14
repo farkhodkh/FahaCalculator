@@ -1,5 +1,7 @@
 package com.example.user.fahacalculator.views;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,15 +16,35 @@ import android.widget.LinearLayout;
 import com.example.user.fahacalculator.R;
 import com.example.user.fahacalculator.presenters.CalculatorActionsPresenter;
 
+import java.util.List;
 import java.util.jar.Attributes;
 
 public class PhoneView extends Fragment {
-
+    Context context;
     CalculatorActionsPresenter presenter;
+
+    public static final String APP_PREFERENCES = "myCalculator";
+    public static final String APP_PREFERENCES_COUNTER = "myCalculatorHistory";
+    private SharedPreferences mSettings;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getContext();
+        mSettings = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String value = "";
+        presenter.onResume(mSettings, APP_PREFERENCES_COUNTER);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        presenter.onPause(mSettings, APP_PREFERENCES_COUNTER);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
