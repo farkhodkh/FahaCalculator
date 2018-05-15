@@ -16,7 +16,6 @@ import android.widget.TextView;
 import com.example.user.fahacalculator.R;
 import com.example.user.fahacalculator.calculation.Calculator;
 import com.example.user.fahacalculator.common.CalculatorParameters;
-import com.example.user.fahacalculator.common.PresenterBase;
 
 import org.json.JSONArray;
 
@@ -26,7 +25,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-public class CalculatorActionsPresenter extends PresenterBase implements CalculatorPresenter {
+public class CalculatorActionsPresenter implements CalculatorPresenter {
     private static View fragmentView;
     private static TextView mainScreenTextView;
     private static TextView resultTextView;
@@ -42,7 +41,6 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
     @Override
     public void attachView(View mvpView) {
-        super.attachView(mvpView);
         fragmentView = (View) mvpView;
         mainScreenTextView = fragmentView.findViewById(R.id.mainScreen);
         resultTextView = fragmentView.findViewById(R.id.resultTextView);
@@ -50,22 +48,17 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
 
     @Override
     public void viewIsReady() {
-        super.viewIsReady();
+
     }
 
     @Override
     public void detachView() {
-        super.detachView();
+
     }
 
     @Override
     public void destroy() {
-        super.destroy();
-    }
 
-    @Override
-    protected boolean isViewAttached() {
-        return super.isViewAttached();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -152,7 +145,6 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
                 if (btnTag != CalculatorParameters.EQUAL_BUTTON) {
                     calculator.input(btnTag);
                     calculator.updateData();
-                    //calculator.inputData(btnTag);
                 } else {
                     onComplete();
                 }
@@ -181,11 +173,6 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
         mainScreenTextView.setText(calculator.getScreenText());
     }
 
-    @Override
-    public View getView() {
-        return super.getView();
-    }
-
     private Point getDisplayParams() {
         DisplayManager displayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
         Display display = displayManager.getDisplay(0);
@@ -195,15 +182,7 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
     }
 
     public void onResume(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
-        String value = "";
-        List inputList = calculator.getInputList();
-        for (int i = 0; i < 3; i++) {
-            if (mSettings.contains(APP_PREFERENCES_COUNTER + i)) {
-                value = mSettings.getString(APP_PREFERENCES_COUNTER + i, "");
-                inputList.add(value);
-                appendScreensText(value);
-            }
-        }
+        calculator.fillInputList(mSettings, APP_PREFERENCES_COUNTER);
         calculator.updateData();
         setResultText();
     }
@@ -218,9 +197,6 @@ public class CalculatorActionsPresenter extends PresenterBase implements Calcula
     }
 
     public void onPause(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
-        List inputList = calculator.getInputList();
-        for (int i = 00; i < Math.min(inputList.size(), 3); i++) {
-            mSettings.edit().putString(APP_PREFERENCES_COUNTER + i, (String) inputList.get(i).toString()).apply();
-        }
+        calculator.saveInputList(mSettings, APP_PREFERENCES_COUNTER);
     }
 }

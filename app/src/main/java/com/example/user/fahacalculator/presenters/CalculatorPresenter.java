@@ -10,4 +10,6 @@ public interface CalculatorPresenter<F extends View> {
     void detachView();
 
     void destroy();
+
+    void initView();
 }

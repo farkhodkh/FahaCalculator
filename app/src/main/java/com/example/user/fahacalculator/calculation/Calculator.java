@@ -1,5 +1,7 @@
 package com.example.user.fahacalculator.calculation;
 
+import android.content.SharedPreferences;
+
 import com.example.user.fahacalculator.common.CalculatorParameters;
 
 import java.util.ArrayList;
@@ -31,9 +33,7 @@ public class Calculator {
     }
 
     public void setInputList(List<String> inputList) {
-        for (int i = 0; i < inputList.size(); i++) {
-            Calculator.inputList.add(inputList.get(i));
-        }
+
     }
 
     private int operatorPriority(String operator) {
@@ -333,5 +333,21 @@ public class Calculator {
         inputList.clear();
         rpnArrayList.clear();
         stackArray.clear();
+    }
+
+    public void fillInputList(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
+        String value = "";
+        for (int i = 0; i < 3; i++) {
+            if (mSettings.contains(APP_PREFERENCES_COUNTER + i)) {
+                value = mSettings.getString(APP_PREFERENCES_COUNTER + i, "");
+                inputList.add(value);
+            }
+        }
+    }
+
+    public void saveInputList(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
+        for (int i = 00; i < Math.min(inputList.size(), 3); i++) {
+            mSettings.edit().putString(APP_PREFERENCES_COUNTER + i, (String) inputList.get(i).toString()).apply();
+        }
     }
 }
