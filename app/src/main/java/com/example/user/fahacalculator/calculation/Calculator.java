@@ -272,24 +272,33 @@ public class Calculator {
             if (thisIsOperator(stackItem)) {
                 tempArraySize = tempArray.size();
                 if (stackItem.equals(CalculatorParameters.ROOT_BUTTON)) {
-                    String firstItem = tempArray.get(tempArraySize - 2);
+                    String firstItem = resultArray.get(resultArray.size()-1);
                     Double result = evaluateExpression(Double.parseDouble(firstItem), null, stackItem);
-                    resultArray.remove(tempArraySize - 2);
+                    resultArray.remove(resultArray.size()-1);
                     resultArray.add(String.valueOf(result));
-                } else if (tempArraySize < 3) {
-                    return 0d;
                 } else {
-                    tempArraySize--;
-                    String firstItem = tempArray.get(tempArraySize - 2);
-                    String secondItem = tempArray.get(tempArraySize - 1);
+                    int resultArraySize = resultArray.size();
+                    String firstItem = null;
+                    try {
+                        firstItem = resultArray.get(resultArraySize - 1);
+                    } catch (Exception e) {
+                        firstItem = null;
+                    }
+
+                    String secondItem = null;
+                    try {
+                        secondItem = resultArray.get(resultArraySize - 2);
+                    } catch (Exception e) {
+                        secondItem = null;
+                    }
 
                     if (firstItem == null || secondItem == null || !thisIsNumber(firstItem) || !thisIsNumber(secondItem)) {
                         return 0d;
                     }
 
                     Double result = evaluateExpression(Double.parseDouble(firstItem), Double.parseDouble(secondItem), stackItem);
-                    resultArray.remove(tempArraySize - 1);
-                    resultArray.remove(tempArraySize - 2);
+                    resultArray.remove(resultArraySize - 1);
+                    resultArray.remove(resultArraySize - 2);
                     resultArray.add(String.valueOf(result));
                 }
             } else {
