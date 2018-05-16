@@ -81,13 +81,13 @@ public class CalculatorActionsPresenter implements CalculatorPresenter {
         if (landscape) {
             Buttons = CalculatorParameters.getLandscapeButtons();
             linearParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) LinearLayout.LayoutParams.WRAP_CONTENT);
-            btnWidth = width / 8;
-            btnHeight = height / 6;
+            btnWidth = width / 12;
+            btnHeight = height / 8;
         } else {
             Buttons = CalculatorParameters.getButtons();
             linearParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) LinearLayout.LayoutParams.WRAP_CONTENT);
-            btnWidth = height / 8;
-            btnHeight = width / 6;
+            btnWidth = width / 5;
+            btnHeight = height / 12;
         }
 
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(btnWidth, btnHeight);
