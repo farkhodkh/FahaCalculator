@@ -1,7 +1,5 @@
 package com.example.user.fahacalculator.calculation;
 
-import android.content.SharedPreferences;
-
 import com.example.user.fahacalculator.common.CalculatorParameters;
 
 import java.util.ArrayList;
@@ -33,7 +31,9 @@ public class Calculator {
     }
 
     public void setInputList(List<String> inputList) {
-
+        for (int i = 0; i < inputList.size(); i++) {
+            Calculator.inputList.add(inputList.get(i));
+        }
     }
 
     private int operatorPriority(String operator) {
@@ -42,7 +42,7 @@ public class Calculator {
             case "*":
                 result = 3;
                 break;
-            case "/":
+            case "÷":
                 result = 3;
                 break;
             case "+":
@@ -128,29 +128,34 @@ public class Calculator {
                 stackArray.add(item);
             } else if (item.equals(")")) {
                 int stackSize = stackArray.size() - 1;
-                String lastItem = stackArray.get(stackSize);
                 boolean check = true;
                 do {
+                    String lastItem = stackArray.get(stackSize);
                     if (lastItem.equals("(")) {
                         stackArray.remove(stackSize);
                         check = false;
+                        break;
                     }
                     rpnArrayList.add(lastItem);
                     stackArray.remove(stackSize);
                     stackSize--;
                 }
                 while (check);
-            } else if (operatorPriority(prevItem) >= operatorPriority(item)) {
-                rpnArrayList.add(prevItem);
-                stackArray.remove(stackArray.size() - 1);
-                stackArray.add(item);
+            } else if (thisIsOperator(item)) {
+                String prevOperator = stackArray.get(stackArray.size() - 1);
+                if (operatorPriority(prevOperator) >= operatorPriority(item)) {
+                    rpnArrayList.add(prevOperator);
+                    stackArray.remove(stackArray.size() - 1);
+                    stackArray.add(item);
+                } else {
+                    stackArray.add(item);
+                }
             } else {
                 stackArray.add(item);
             }
         }
     }
 
-    @Deprecated
     public void inputData(String btnTag) {
         if (btnTag == null || btnTag.equals("")) {
             return;
@@ -272,24 +277,22 @@ public class Calculator {
             if (thisIsOperator(stackItem)) {
                 tempArraySize = tempArray.size();
                 if (stackItem.equals(CalculatorParameters.ROOT_BUTTON)) {
-                    String firstItem = resultArray.get(resultArray.size()-1);
+                    String firstItem = tempArray.get(tempArraySize - 2);
                     Double result = evaluateExpression(Double.parseDouble(firstItem), null, stackItem);
-                    resultArray.remove(resultArray.size()-1);
+                    resultArray.remove(tempArraySize - 2);
                     resultArray.add(String.valueOf(result));
+                } else if (tempArraySize < 3) {
+                    return 0d;
                 } else {
                     int resultArraySize = resultArray.size();
                     String firstItem = null;
-                    try {
-                        firstItem = resultArray.get(resultArraySize - 1);
-                    } catch (Exception e) {
-                        firstItem = null;
-                    }
-
                     String secondItem = null;
+
                     try {
-                        secondItem = resultArray.get(resultArraySize - 2);
+                        firstItem = resultArray.get(resultArraySize - 2);
+                        secondItem = resultArray.get(resultArraySize - 1);
                     } catch (Exception e) {
-                        secondItem = null;
+                        e.printStackTrace();
                     }
 
                     if (firstItem == null || secondItem == null || !thisIsNumber(firstItem) || !thisIsNumber(secondItem)) {
@@ -342,21 +345,5 @@ public class Calculator {
         inputList.clear();
         rpnArrayList.clear();
         stackArray.clear();
-    }
-
-    public void fillInputList(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
-        String value = "";
-        for (int i = 0; i < 3; i++) {
-            if (mSettings.contains(APP_PREFERENCES_COUNTER + i)) {
-                value = mSettings.getString(APP_PREFERENCES_COUNTER + i, "");
-                inputList.add(value);
-            }
-        }
-    }
-
-    public void saveInputList(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
-        for (int i = 00; i < Math.min(inputList.size(), 3); i++) {
-            mSettings.edit().putString(APP_PREFERENCES_COUNTER + i, (String) inputList.get(i).toString()).apply();
-        }
     }
 }
