@@ -179,7 +179,9 @@ public class CalculatorActionsPresenter implements CalculatorPresenter {
         Point size = new Point();
         display.getSize(size);
         return size;
+        //
     }
+
 
     public void onResume(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
         calculator.fillInputList(mSettings, APP_PREFERENCES_COUNTER);
