@@ -351,7 +351,7 @@ public class Calculator {
     }
 
     public void saveInputList(SharedPreferences mSettings, String app_preferences_counter) {
-        for(int i=0;i<=Math.min(inputList.size()-1, 10);i++){
+        for(int i=0;i<=Math.min(inputList.size()-1, 10);i++) {
             mSettings.edit().putString(app_preferences_counter + i, inputList.get(i));
         }
     }
