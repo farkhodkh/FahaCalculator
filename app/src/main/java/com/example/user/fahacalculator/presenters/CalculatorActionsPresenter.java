@@ -183,13 +183,10 @@ public class CalculatorActionsPresenter implements CalculatorPresenter {
 
     public void onResume(SharedPreferences mSettings, String APP_PREFERENCES_COUNTER) {
         calculator.fillInputList(mSettings, APP_PREFERENCES_COUNTER);
+        mainScreenTextView.setText(calculator.getMainScreentext());
         calculator.updateData();
         setResultText();
-    }
 
-    public String getJsonObject() {
-        JSONArray jsArray = new JSONArray(getInputList());
-        return jsArray.toString();
     }
 
     private List<String> getInputList() {

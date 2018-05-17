@@ -1,5 +1,8 @@
 package com.example.user.fahacalculator.calculation;
 
+import android.content.SharedPreferences;
+import android.widget.TextView;
+
 import com.example.user.fahacalculator.common.CalculatorParameters;
 
 import java.util.ArrayList;
@@ -346,4 +349,30 @@ public class Calculator {
         rpnArrayList.clear();
         stackArray.clear();
     }
+
+    public void saveInputList(SharedPreferences mSettings, String app_preferences_counter) {
+        for(int i=0;i<=Math.min(inputList.size()-1, 10);i++){
+            mSettings.edit().putString(app_preferences_counter + i, inputList.get(i));
+        }
+    }
+
+    public void fillInputList(SharedPreferences mSettings, String app_preferences_counter) {
+        for(int i=0;i<=10;i++) {
+            if(mSettings.contains(app_preferences_counter+i)){
+                String value = mSettings.getString( app_preferences_counter+i, "");
+                if(!value.equals("")) {
+                    inputList.add(value);
+                }
+            }
+        }
+    }
+
+    public String getMainScreentext() {
+        String mainText = "";
+        for(int i = 0; i<inputList.size();i++){
+            mainText = mainText + inputList.get(i);
+        }
+        return mainText;
+    }
+
 }
