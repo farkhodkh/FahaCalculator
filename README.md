@@ -5,4 +5,4 @@ My calculator project.
 
 computing
 
-<img src="gif_files/2018-05-18_13-04-53.gif" width="380" />
+<img src="GIF_FILES/2018-05-18_13-04-53.gif" width="380" />
